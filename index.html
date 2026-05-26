@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdullah Mahmood | Workspace</title>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="particles-js"></div>
+
+    <nav class="navbar">
+        <label class="theme-switch">
+            <input type="checkbox" id="themeToggleCheckbox">
+            <span class="slider">
+                <span class="text">Dark</span>
+                <span class="icon">🌙</span>
+            </span>
+        </label>
+    </nav>
+
+    <header class="hero-section">
+        <div class="profile-card">
+            <div class="avatar">A</div>
+            <h1>Abdullah Mahmood</h1>
+            <p class="subtitle">Software Engineer | CS Student</p>
+            <p class="bio">Welcome to my digital workspace. Scroll down to see my active projects.</p>
+            
+            <div class="button-group">
+                <a href="https://github.com/YOUR_GITHUB" target="_blank" class="btn btn-primary">GitHub Profile</a>
+                <a href="hall-of-fame.html" class="btn btn-secondary">Hall of Fame</a>
+                <a href="big-projects.html" class="btn btn-special">Big Projects</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="todo-section">
+        <div class="todo-header">
+            <h2>Active Projects</h2>
+            <button id="addNewBtn" class="btn btn-primary">+ Add Project</button>
+        </div>
+        <div id="todoList" class="projects-grid"></div>
+    </main>
+
+    <div id="projectModal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <h2 id="modalTitle">Add New Project</h2>
+            <form id="projectForm">
+                <input type="hidden" id="projectId">
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <input type="text" id="projName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Language</label>
+                        <input type="text" id="projLang" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty</label>
+                        <select id="projDifficulty" required>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Technologies</label><input type="text" id="projTech" required></div>
+                <div class="form-group"><label>Description</label><textarea id="projDesc" rows="3" required></textarea></div>
+                <div class="form-group"><label>GitHub Repo (Optional)</label><input type="url" id="projRepo"></div>
+                <div class="modal-actions">
+                    <button type="button" id="closeModalBtn" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
