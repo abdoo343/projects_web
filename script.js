@@ -76,12 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // [2] قاعدة البيانات وعرض المشاريع
     // ==========================================
     let database = JSON.parse(localStorage.getItem('projects')) || [];
-    const todoList = document.getElementById('todoList');           // الصفحة الرئيسية
-    const completedList = document.getElementById('completedList'); // صفحة Hall of Fame
-    const bigProjectsList = document.getElementById('bigProjectsList'); // صفحة Big Projects
+    const todoList = document.getElementById('todoList');           
+    const completedList = document.getElementById('completedList'); 
+    const bigProjectsList = document.getElementById('bigProjectsList'); 
 
     function renderProjects() {
-        // الصفحة الرئيسية (index.html)
         if (todoList) {
             todoList.innerHTML = '';
             const activeProjects = database.filter(p => p.status === 'todo');
@@ -92,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
-        // صفحة المكتملين (hall-of-fame.html)
         if (completedList) {
             completedList.innerHTML = '';
             const finishedProjects = database.filter(p => p.status === 'completed');
@@ -103,10 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // صفحة المشاريع الضخمة (big-projects.html)
         if (bigProjectsList) {
             bigProjectsList.innerHTML = '';
-            // جلب المشاريع التي صعوبتها Hard (سواء قيد التنفيذ أو مكتملة)
             const bigProjects = database.filter(p => p.difficulty === 'Hard');
             if (bigProjects.length === 0) {
                 bigProjectsList.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">No Big Projects yet! Time to dream bigger 🚀</p>';
@@ -122,10 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
         
         let actionButton = '';
         if (contextType === 'completed') {
-            // زر الحذف في صفحة Hall of fame
             actionButton = `<button class="btn-delete" onclick="deleteProject('${proj.id}', event)" title="Delete Permanently">X</button>`;
         } else {
-            // زر الإكمال في باقي الصفحات
             actionButton = `<button class="check-btn" onclick="completeProject('${proj.id}', event)" title="Mark as Completed"></button>`;
         }
 
@@ -140,14 +134,18 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="tags"><span class="tag" style="color: #8b5cf6;">Tech: ${proj.tech}</span></div>
         `;
 
-        if (contextType !== 'completed') {
-            card.onclick = (e) => { if(!e.target.classList.contains('check-btn')) openEditModal(proj.id); };
-        }
+        // هنا خلينا الضغطة تفتح نافذة التفاصيل بدل التعديل المباشر
+        card.onclick = (e) => { 
+            // إذا دسنا على زر الصح أو الحذف، لا تفتح التفاصيل
+            if(e.target.tagName.toLowerCase() === 'button' || e.target.closest('button')) return;
+            openDetailsModal(proj.id); 
+        };
+        
         container.appendChild(card);
     }
 
     // ==========================================
-    // [3] العمليات (إضافة، إكمال، حذف)
+    // [3] العمليات (إضافة، إكمال، حذف، وتفاصيل)
     // ==========================================
     
     const form = document.getElementById('projectForm');
@@ -207,19 +205,70 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const modal = document.getElementById('projectModal');
+    // التحكم بنوافذ الـ Modal
+    const modal = document.getElementById('projectModal'); // نافذة الإضافة/التعديل
+    const detailsModal = document.getElementById('detailsModal'); // نافذة التفاصيل الجديدة
     const addNewBtn = document.getElementById('addNewBtn');
+    
+    // أزرار الإغلاق
     const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeDetailsBtn = document.getElementById('closeDetailsBtn');
 
     if (addNewBtn) addNewBtn.onclick = () => {
         form.reset(); document.getElementById('projectId').value = '';
         document.getElementById('modalTitle').innerText = 'Add New Project';
         modal.classList.remove('hidden');
     };
+    
     if (closeModalBtn) closeModalBtn.onclick = closeModal;
+    if (closeDetailsBtn) closeDetailsBtn.onclick = () => detailsModal.classList.add('hidden');
 
-    function closeModal() { if(modal) modal.classList.add('hidden'); }
+    function closeModal() { 
+        if(modal) modal.classList.add('hidden'); 
+        if(detailsModal) detailsModal.classList.add('hidden');
+    }
 
+    // فتح نافذة التفاصيل
+    window.openDetailsModal = function(id) {
+        const proj = database.find(p => p.id === id);
+        if(proj && detailsModal) {
+            document.getElementById('detName').innerText = proj.name;
+            document.getElementById('detTech').innerText = proj.tech;
+            document.getElementById('detDesc').innerText = proj.description;
+            
+            // إضافة التاجز (حالة المشروع، اللغة، الصعوبة)
+            let statusColor = proj.status === 'completed' ? '#10b981' : '#f59e0b';
+            let statusText = proj.status === 'completed' ? 'Completed' : 'In Progress';
+            
+            document.getElementById('detTags').innerHTML = `
+                <span class="tag diff-${proj.difficulty}">${proj.difficulty}</span>
+                <span class="tag">${proj.language}</span>
+                <span class="tag" style="background: ${statusColor}; color: white; border: none;">${statusText}</span>
+            `;
+
+            // إظهار أو إخفاء زر الـ GitHub
+            const repoBtn = document.getElementById('detRepo');
+            if(proj.repo && proj.repo.trim() !== '') {
+                repoBtn.href = proj.repo;
+                repoBtn.classList.remove('hidden');
+            } else {
+                repoBtn.classList.add('hidden');
+            }
+
+            // برمجة زر التعديل بداخل نافذة التفاصيل
+            const editBtn = document.getElementById('editFromDetailsBtn');
+            if (editBtn) {
+                editBtn.onclick = () => {
+                    detailsModal.classList.add('hidden'); // سد التفاصيل
+                    openEditModal(proj.id); // افتح نافذة التعديل
+                };
+            }
+
+            detailsModal.classList.remove('hidden');
+        }
+    };
+
+    // فتح نافذة التعديل
     window.openEditModal = function(id) {
         const proj = database.find(p => p.id === id);
         if(proj && modal) {
